@@ -50,7 +50,7 @@ export default class BookController {
     try {
       const foundBook = await book.findByIdAndUpdate(req.params.id, req.body);
       if (foundBook){
-        res.status(200).json( {message: "Livro atualizado com sucesso" });
+        res.status(200).json({ message: "Livro atualizado com sucesso" });
       } else {
         next(new NotFoundError("Livro não encontrado"));
       }
