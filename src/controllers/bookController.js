@@ -1,5 +1,4 @@
-import book from "../models/Book.js";
-import { author } from "../models/Author.js";
+import { book, author } from "../models/index.js";
 import NotFoundError from "../errors/notFoundError.js";
 
 export default class BookController {
