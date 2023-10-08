@@ -1,16 +1,15 @@
-import mongoose from "mongoose";
 import { author } from "../models/Author.js";
 
 export default class AuthorController {
-  static async listAuthors(req, res) {
+  static async listAuthors(req, res, next) {
     try {
       const authors = await author.find({});
       res.status(200).json(authors);
     } catch(error) {
-      res.status(500).json({ message:`${error} - Erro na requisição` });
+      next(error);
     }
   }
-  static async listAuthorById(req, res) {
+  static async listAuthorById(req, res, next) {
     try {
       const authorFound = await author.findById(req.params.id);
       if (authorFound) {
@@ -19,35 +18,31 @@ export default class AuthorController {
         res.status(404).json({ message:"Id do Autor não encontrado" });
       }
     } catch(error) {
-      if (error instanceof mongoose.Error.CastError) {
-        res.status(400).json({ message: "Dados fornecidos estão incorretos" });
-      } else {
-        res.status(500).json({ message:`${error} - Erro na requisição` });
-      }
+      next(error);
     }
   }
-  static async authorRegister(req, res) {
+  static async authorRegister(req, res, next) {
     try {
       const newAuthor = await author.create(req.body);
       res.status(200).json({ message: "Autor criado com sucesso", author: newAuthor });
     } catch(error) {
-      res.status(500).json({ message:`${error} - Erro na requisição` });
+      next(error);
     }
   }
-  static async updateAuthor(req, res) {
+  static async updateAuthor(req, res, next) {
     try {
       await author.findByIdAndUpdate(req.params.id, req.body);
       res.status(200).json({ message: "Autor atualizado com sucesso" });
     } catch(error) {
-      res.status(500).json({ message:`${error} - Erro na requisição` });
+      next(error);
     }
   }
-  static async deleteAuthor(req, res) {
+  static async deleteAuthor(req, res, next) {
     try {
       const authorFound = await author.findByIdAndDelete(req.params.id);
       res.status(200).json({ message: "Autor excluído com sucesso", author: authorFound });
     } catch(error) {
-      res.status(500).json({ message:`${error} - Erro na requisição` });
+      next(error);
     }
   }
 }
