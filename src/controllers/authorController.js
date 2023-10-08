@@ -1,3 +1,4 @@
+import NotFoundError from "../errors/notFoundError.js";
 import { author } from "../models/Author.js";
 
 export default class AuthorController {
@@ -15,7 +16,7 @@ export default class AuthorController {
       if (authorFound) {
         res.status(200).json(authorFound);
       } else {
-        res.status(404).json({ message:"Id do Autor não encontrado" });
+        next(new NotFoundError("Autor não encontrado"));
       }
     } catch(error) {
       next(error);
@@ -31,16 +32,24 @@ export default class AuthorController {
   }
   static async updateAuthor(req, res, next) {
     try {
-      await author.findByIdAndUpdate(req.params.id, req.body);
-      res.status(200).json({ message: "Autor atualizado com sucesso" });
+      const foundAuthor = await author.findByIdAndUpdate(req.params.id, req.body);
+      if (foundAuthor){
+        res.status(200).json({ message: "Autor atualizado com sucesso" });
+      } else {
+        next(new NotFoundError("Autor não encontrado"));
+      }
     } catch(error) {
       next(error);
     }
   }
   static async deleteAuthor(req, res, next) {
     try {
-      const authorFound = await author.findByIdAndDelete(req.params.id);
-      res.status(200).json({ message: "Autor excluído com sucesso", author: authorFound });
+      const foundAuthor = await author.findByIdAndDelete(req.params.id);
+      if (foundAuthor){
+        res.status(200).json({ message: "Autor excluído com sucesso", author: foundAuthor });
+      } else {
+        next(new NotFoundError("Autor não encontrado"));
+      }
     } catch(error) {
       next(error);
     }

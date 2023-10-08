@@ -1,5 +1,6 @@
 import book from "../models/Book.js";
 import { author } from "../models/Author.js";
+import NotFoundError from "../errors/notFoundError.js";
 
 export default class BookController {
     
@@ -23,8 +24,12 @@ export default class BookController {
 
   static async listBookById(req, res, next) {
     try {
-      const bookFound = await book.findById(req.params.id);
-      res.status(200).json(bookFound);
+      const foundBook = await book.findById(req.params.id);
+      if (foundBook){
+        res.status(200).json(foundBook);
+      } else {
+        next(new NotFoundError("Livro não encontrado"));
+      }
     } catch(error) {
       next(error);
     }
@@ -43,8 +48,12 @@ export default class BookController {
 
   static async updateBook(req, res, next) {
     try {
-      await book.findByIdAndUpdate(req.params.id, req.body);
-      res.status(200).json( {message: "Livro atualizado com sucesso" });
+      const foundBook = await book.findByIdAndUpdate(req.params.id, req.body);
+      if (foundBook){
+        res.status(200).json( {message: "Livro atualizado com sucesso" });
+      } else {
+        next(new NotFoundError("Livro não encontrado"));
+      }
     } catch(error) {
       next(error);
     }
@@ -52,8 +61,12 @@ export default class BookController {
 
   static async deleteBook(req, res, next) {
     try {
-      await book.findByIdAndDelete(req.params.id);
-      res.status(204).json( {message: "Livro excluído com sucesso" });
+      const foundBook = await book.findByIdAndDelete(req.params.id);
+      if (foundBook){
+        res.status(204).json( {message: "Livro excluído com sucesso" });
+      } else {
+        next(new NotFoundError("Livro não encontrado"));
+      }
     } catch(error) {
       next(error);
     }
