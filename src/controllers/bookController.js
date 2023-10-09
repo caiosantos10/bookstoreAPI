@@ -12,9 +12,19 @@ export default class BookController {
     }
   }
 
-  static async listBookByPublisher(req, res, next) { 
+  static async listBookByQuery(req, res, next) { 
     try {
-      const books = await book.find({ publisher : req.query.publisher });
+      const { publisher, title, minPages, maxPages } = req.query;
+      const search = {};
+
+      if (publisher) search.publisher = { $regex: publisher, $options: "i"};
+      if (title) search.title = { $regex: title, $options: "i"};
+
+      // Filter by pages
+      if (minPages) search.pages = { $gte: minPages };
+      if (maxPages) search.pages = { ...search.pages, $lte: maxPages };
+
+      const books = await book.find(search);
       res.status(200).json({ books });
     } catch(error) {
       next(error);
