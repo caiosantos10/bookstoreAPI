@@ -14,18 +14,13 @@ export default class BookController {
 
   static async listBookByQuery(req, res, next) { 
     try {
-      const { publisher, title, minPages, maxPages } = req.query;
-      const search = {};
-
-      if (publisher) search.publisher = { $regex: publisher, $options: "i"};
-      if (title) search.title = { $regex: title, $options: "i"};
-
-      // Filter by pages
-      if (minPages) search.pages = { $gte: minPages };
-      if (maxPages) search.pages = { ...search.pages, $lte: maxPages };
-
-      const books = await book.find(search);
-      res.status(200).json({ books });
+      const search = await filterBuilder(req);
+      if (search) {
+        const books = await book.find(search).populate("author");
+        res.status(200).json({ books });
+      } else {
+        res.status(200).json([]);
+      }
     } catch(error) {
       next(error);
     }
@@ -80,4 +75,25 @@ export default class BookController {
       next(error);
     }
   }
+}
+
+async function filterBuilder(req) {
+  const { publisher, title, minPages, maxPages, authorName } = req.query;
+  let search = {};
+
+  if (publisher) search.publisher = { $regex: publisher, $options: "i"};
+  if (title) search.title = { $regex: title, $options: "i"};
+
+  // Filter by pages
+  if (minPages) search.pages = { $gte: minPages };
+  if (maxPages) search.pages = { ...search.pages, $lte: maxPages };
+
+  // Filter by authorName
+  if (authorName) {
+    const authorObj = await author.findOne({ name: authorName });
+
+    authorObj === null ? search = null : search.author = authorObj._id;
+  }
+        
+  return search;
 }
