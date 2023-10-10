@@ -11,7 +11,7 @@
 ### Books
 
 * get /books 
-* get /books/search 
+* get /books/search - [publisher, title, minPages, maxPages, authorName] as query
 * get /books/:id 
 * post /books 
 * put /books/:id 
