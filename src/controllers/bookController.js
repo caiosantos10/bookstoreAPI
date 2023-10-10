@@ -5,8 +5,9 @@ export default class BookController {
     
   static async listBooks(req, res, next) {
     try {
-      const booksList = await book.find({});
-      res.status(200).json(booksList);
+      const books = book.find().populate("author");
+      req.result = books;
+      next();
     } catch(error) {
       next(error);
     }
@@ -16,8 +17,9 @@ export default class BookController {
     try {
       const search = await filterBuilder(req);
       if (search) {
-        const books = await book.find(search).populate("author");
-        res.status(200).json({ books });
+        const books = book.find(search).populate("author");
+        req.result = books;
+        next();
       } else {
         res.status(200).json([]);
       }
